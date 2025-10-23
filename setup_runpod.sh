@@ -171,21 +171,28 @@ else
 fi
 
 # Download metric depth models if needed
-print_info "Checking for metric depth models..."
+# NOTE: Metric models have the prefix "metric_" not suffix "_metric"
+print_info "Checking for metric depth models (optional)..."
+print_info "Note: Metric models may not be available on Hugging Face"
+print_info "If you don't need metric depth, set metric: false in config.yaml"
 
-if [ ! -f "video_depth_anything_metric_vits.pth" ]; then
-    print_info "Downloading metric depth model (Small)..."
+# Try to download with correct naming: metric_video_depth_anything_*.pth
+if [ ! -f "metric_video_depth_anything_vits.pth" ]; then
+    print_info "Attempting to download metric depth model (Small)..."
     wget -q --show-progress \
-        https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_metric_vits.pth \
-        || print_info "Metric Small model not available or failed to download"
+        https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/metric_video_depth_anything_vits.pth \
+        2>/dev/null || print_info "Metric Small model not available (this is normal)"
 fi
 
-if [ ! -f "video_depth_anything_metric_vitl.pth" ]; then
-    print_info "Downloading metric depth model (Large)..."
+if [ ! -f "metric_video_depth_anything_vitl.pth" ]; then
+    print_info "Attempting to download metric depth model (Large)..."
     wget -q --show-progress \
-        https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_metric_vitl.pth \
-        || print_info "Metric Large model not available or failed to download"
+        https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/metric_video_depth_anything_vitl.pth \
+        2>/dev/null || print_info "Metric Large model not available (this is normal)"
 fi
+
+print_info "Standard (relative depth) models are ready to use"
+print_info "If metric models failed to download, use metric: false in config.yaml"
 
 cd ../..
 

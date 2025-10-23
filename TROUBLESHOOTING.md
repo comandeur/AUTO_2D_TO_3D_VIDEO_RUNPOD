@@ -302,6 +302,45 @@ apt-get install -y git
 
 ---
 
+### Error: `FileNotFoundError: metric_video_depth_anything_vitl.pth`
+
+**Problem:** You have `metric: true` in config.yaml but the metric depth models are not available.
+
+**Quick Solution:**
+
+Edit `config.yaml` and change:
+```yaml
+depth_settings:
+  metric: false  # Change from true to false
+```
+
+**Why this happens:**
+- Metric depth models give actual distance measurements (meters)
+- Relative depth models give depth relationships (closer/farther)
+- **Metric models may not be publicly available** on Hugging Face
+- **For 3D/SBS conversion, you don't need metric depth** - relative depth works perfectly
+
+**When to use each:**
+- **Relative depth (metric: false)**: 3D conversion, SBS video, depth effects ← **Use this**
+- **Metric depth (metric: true)**: Actual distance measurements, robotics, AR applications
+
+**If you really need metric depth:**
+
+Try downloading manually:
+```bash
+cd Video-Depth-Anything/checkpoints
+
+# Try Small metric model
+wget https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/metric_video_depth_anything_vits.pth
+
+# Try Large metric model
+wget https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/metric_video_depth_anything_vitl.pth
+```
+
+If downloads fail, metric models are not publicly available. Use `metric: false` instead.
+
+---
+
 ### Model checkpoint download fails
 
 **Problem:** wget cannot download model checkpoints from Hugging Face.
@@ -322,10 +361,10 @@ apt-get install -y git
    ```bash
    cd Video-Depth-Anything/checkpoints
 
-   # Small model
+   # Small model (relative depth)
    wget https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth
 
-   # Large model
+   # Large model (relative depth)
    wget https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_vitl.pth
    ```
 
@@ -517,6 +556,7 @@ If you're still experiencing issues:
 | `No module named 'imageio'` | `pip3 install imageio imageio-ffmpeg` |
 | `No module named 'xformers'` | `pip3 install xformers` |
 | `CUDA out of memory` | Use small model or lower resolution |
+| `FileNotFoundError: metric_video_depth_anything` | Set `metric: false` in config.yaml |
 | `ffmpeg: command not found` | `apt-get install ffmpeg` |
 | `No videos found` | Check files are in `in/` folder |
 | Blank depth output | Check input video is valid |

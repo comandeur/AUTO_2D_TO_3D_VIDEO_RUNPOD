@@ -6,7 +6,9 @@ depth_settings:
   encoder: "vitl"
 
   # Use metric depth (trained on Virtual KITTI and IRS datasets)
-  metric: true
+  # IMPORTANT: Set to false by default - metric models may not be available
+  # Use relative depth (false) for most use cases, metric (true) if you need actual distances
+  metric: false
 
   # Maximum length of input video (-1 for no limit)
   max_len: -1

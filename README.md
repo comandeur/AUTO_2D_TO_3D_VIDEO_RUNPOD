@@ -97,7 +97,10 @@ Edit `config.yaml` to customize processing:
   - `vits`: Small model (28.4M params, faster)
   - `vitl`: Large model (381.8M params, better quality)
 
-- **metric**: Use metric depth estimation (true/false)
+- **metric**: Use metric depth estimation (default: `false`)
+  - **false** = Relative depth (perfect for 3D conversion) ← **Recommended**
+  - **true** = Metric depth in meters (may not be available)
+  - See [Metric vs Relative Depth Guide](METRIC_VS_RELATIVE_DEPTH.md) for details
 
 - **max_len**: Maximum video length to process (-1 for unlimited)
 
