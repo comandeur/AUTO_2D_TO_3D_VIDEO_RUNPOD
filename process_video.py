@@ -160,17 +160,20 @@ def process_video(video_path, config, vda_path, output_folder):
         print(f"  Total frames: {video_info['total_frames']}")
         print(f"  Resolution: {video_info['width']}x{video_info['height']}")
 
-    # Prepare output directory
-    video_output_dir = os.path.join(output_folder, video_path.stem)
+    # Prepare output directory (use absolute path)
+    video_output_dir = os.path.abspath(os.path.join(output_folder, video_path.stem))
     os.makedirs(video_output_dir, exist_ok=True)
 
-    # Build command
+    # Convert input video to absolute path
+    input_video_abs = os.path.abspath(video_path)
+
+    # Build command - run.py from within Video-Depth-Anything directory
     depth_settings = config['depth_settings']
     cmd = [
         'python3',
-        os.path.join(vda_path, 'run.py'),
-        '--input_video', str(video_path),
-        '--output_dir', video_output_dir,
+        'run.py',  # Run from vda_path directory, so just 'run.py'
+        '--input_video', input_video_abs,  # Use absolute path
+        '--output_dir', video_output_dir,  # Use absolute path
         '--encoder', depth_settings['encoder']
     ]
 
@@ -191,15 +194,18 @@ def process_video(video_path, config, vda_path, output_folder):
         cmd.append('--grayscale')
 
     print(f"\nCommand: {' '.join(cmd)}")
+    print(f"Working directory: {vda_path}")
     print(f"\nStarting conversion at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Output directory: {video_output_dir}\n")
 
-    # Run the process
+    # Run the process from within Video-Depth-Anything directory
+    # This is CRITICAL because run.py uses relative paths like ./checkpoints/
     start_time = time.time()
 
     try:
         process = subprocess.Popen(
             cmd,
+            cwd=vda_path,  # Run from Video-Depth-Anything directory!
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
