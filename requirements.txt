@@ -3,12 +3,30 @@
 # Configuration management
 pyyaml>=6.0
 
+# Progress bars
+tqdm>=4.65.0
+
+# Video processing
+opencv-python>=4.8.0
+opencv-python-headless>=4.8.0
+
+# Deep learning utilities
+einops>=0.7.0
+easydict>=1.10
+
+# For Jupyter notebook support on RunPod
+notebook>=7.0.0
+ipywidgets>=8.0.0
+
 # Note: Video-Depth-Anything has its own requirements.txt
 # which will be installed during setup
 # Main dependencies from Video-Depth-Anything include:
-# - torch
+# - torch (PyTorch)
 # - torchvision
 # - opencv-python
 # - pillow
 # - numpy
 # - tqdm
+
+# The setup script handles installation of all dependencies
+# Run ./setup_runpod.sh to install everything automatically

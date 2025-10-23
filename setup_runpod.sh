@@ -103,8 +103,39 @@ fi
 cd Video-Depth-Anything
 
 print_info "Installing Python dependencies for Video-Depth-Anything..."
-pip3 install -q -r requirements.txt || print_error "Failed to install Python requirements"
-print_success "Python dependencies installed"
+print_info "This may take a few minutes..."
+
+# Install common dependencies explicitly to avoid issues
+print_info "Installing core dependencies..."
+pip3 install --upgrade pip setuptools wheel || print_error "Failed to upgrade pip"
+
+# Install Video-Depth-Anything requirements
+if [ -f "requirements.txt" ]; then
+    print_info "Installing from requirements.txt..."
+    pip3 install -r requirements.txt
+    if [ $? -ne 0 ]; then
+        print_error "Failed to install Python requirements from requirements.txt"
+        exit 1
+    fi
+else
+    print_info "requirements.txt not found, installing common dependencies manually..."
+    pip3 install torch torchvision opencv-python pillow numpy tqdm
+fi
+
+# Install additional common dependencies that might be missing
+print_info "Installing additional dependencies..."
+pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict
+
+# Verify critical imports
+print_info "Verifying Python dependencies..."
+python3 -c "import torch; print('✓ PyTorch:', torch.__version__)" || (print_error "PyTorch import failed" && exit 1)
+python3 -c "import cv2; print('✓ OpenCV:', cv2.__version__)" || (print_error "OpenCV import failed" && exit 1)
+python3 -c "import numpy; print('✓ NumPy:', numpy.__version__)" || (print_error "NumPy import failed" && exit 1)
+python3 -c "import tqdm; print('✓ tqdm: OK')" || (print_error "tqdm import failed" && exit 1)
+python3 -c "import einops; print('✓ einops: OK')" || (print_error "einops import failed" && exit 1)
+python3 -c "import yaml; print('✓ PyYAML: OK')" || (print_error "PyYAML import failed" && exit 1)
+
+print_success "All Python dependencies installed and verified"
 
 # Create checkpoints directory
 mkdir -p checkpoints
