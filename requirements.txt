@@ -15,6 +15,7 @@ imageio-ffmpeg>=0.4.9
 # Deep learning utilities
 einops>=0.7.0
 easydict>=1.10
+xformers>=0.0.20  # Efficient transformer operations (memory optimization)
 
 # Visualization
 matplotlib>=3.7.0

@@ -125,6 +125,22 @@ pip3 install imageio imageio-ffmpeg
 
 ---
 
+### Error: `ModuleNotFoundError: No module named 'xformers'`
+
+**Problem:** xformers (efficient transformer operations library) is not installed.
+
+**Solution:**
+```bash
+pip3 install xformers
+```
+
+**Note:** xformers is important for:
+- Memory optimization during processing
+- Faster transformer operations
+- Better GPU utilization
+
+---
+
 ### Quick Fix for All Missing Dependencies
 
 If you're getting multiple `ModuleNotFoundError` messages, run:
@@ -137,7 +153,7 @@ This script automatically installs all common missing dependencies.
 
 Or manually install all common dependencies:
 ```bash
-pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict matplotlib imageio imageio-ffmpeg notebook ipywidgets
+pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict matplotlib imageio imageio-ffmpeg xformers notebook ipywidgets
 ```
 
 ---
@@ -499,6 +515,7 @@ If you're still experiencing issues:
 | `No module named 'easydict'` | `pip3 install easydict` |
 | `No module named 'matplotlib'` | `pip3 install matplotlib` |
 | `No module named 'imageio'` | `pip3 install imageio imageio-ffmpeg` |
+| `No module named 'xformers'` | `pip3 install xformers` |
 | `CUDA out of memory` | Use small model or lower resolution |
 | `ffmpeg: command not found` | `apt-get install ffmpeg` |
 | `No videos found` | Check files are in `in/` folder |

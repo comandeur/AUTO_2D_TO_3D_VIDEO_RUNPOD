@@ -124,7 +124,7 @@ fi
 
 # Install additional common dependencies that might be missing
 print_info "Installing additional dependencies..."
-pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg
+pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg xformers
 
 # Verify critical imports
 print_info "Verifying Python dependencies..."
@@ -134,6 +134,7 @@ python3 -c "import numpy; print('✓ NumPy:', numpy.__version__)" || (print_erro
 python3 -c "import tqdm; print('✓ tqdm: OK')" || (print_error "tqdm import failed" && exit 1)
 python3 -c "import einops; print('✓ einops: OK')" || (print_error "einops import failed" && exit 1)
 python3 -c "import yaml; print('✓ PyYAML: OK')" || (print_error "PyYAML import failed" && exit 1)
+python3 -c "import xformers; print('✓ xformers:', xformers.__version__)" || print_info "xformers not installed (optional but recommended)"
 
 print_success "All Python dependencies installed and verified"
 
