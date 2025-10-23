@@ -206,9 +206,16 @@ def process_video(video_path, config, vda_path, output_folder):
     start_time = time.time()
 
     try:
+        # Set environment variables to disable xformers/flash-attention if they cause issues
+        # This prevents CUDA compatibility errors with flash-attention
+        env = os.environ.copy()
+        env['XFORMERS_DISABLED'] = '1'
+        env['XFORMERS_FORCE_DISABLE_TRITON'] = '1'
+
         process = subprocess.Popen(
             cmd,
             cwd=vda_path,  # Run from Video-Depth-Anything directory!
+            env=env,  # Use modified environment with xformers disabled
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,

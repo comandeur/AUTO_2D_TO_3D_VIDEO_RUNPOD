@@ -327,6 +327,57 @@ apt-get install -y git
 
 ---
 
+### Error: `CUDA error (flash-attention/hopper/flash_fwd_launch_template.h): invalid argument`
+
+**Problem:** xformers/flash-attention CUDA compatibility error. Flash-attention is trying to use GPU architecture features that aren't supported by your GPU.
+
+**Cause:**
+- Flash-attention may be compiled for Hopper architecture (H100 GPUs)
+- Your GPU may not support the specific CUDA operations
+- xformers version incompatibility with your CUDA/GPU
+
+**Solution:**
+
+The processing script has been updated to automatically disable xformers. If you still encounter this:
+
+**Option 1: Use environment variables (Recommended):**
+```bash
+# Disable xformers before running
+export XFORMERS_DISABLED=1
+export XFORMERS_FORCE_DISABLE_TRITON=1
+
+# Then run processing
+./process_video.py
+```
+
+**Option 2: Uninstall xformers:**
+```bash
+pip3 uninstall xformers -y
+
+# Then run processing
+./process_video.py
+```
+
+**Note:** Disabling xformers will:
+- Make processing work on all GPUs
+- Use slightly more VRAM (~10-15%)
+- Be slightly slower (~5-10%)
+- Still produce identical output quality
+
+**Option 3: Reinstall compatible xformers:**
+```bash
+pip3 uninstall xformers -y
+pip3 install xformers==0.0.22  # Try older version
+```
+
+**Why this happens:**
+- xformers includes flash-attention for memory-efficient attention
+- Flash-attention has architecture-specific optimizations
+- Some GPU architectures aren't compatible with certain flash-attention builds
+- Video-Depth-Anything works fine without xformers
+
+---
+
 ### Error: `RuntimeError: CUDA error: device-side assert triggered`
 
 **Problem:** Usually indicates a bug in the model or incompatible CUDA/PyTorch versions.
@@ -699,6 +750,7 @@ If you're still experiencing issues:
 | `AttributeError: module 'pkgutil' has no attribute 'ImpImporter'` | Python 3.12 issue - run setup script again |
 | `Cannot uninstall wheel` | Ignore this warning (system package) |
 | `CUDA out of memory` | Use small model or lower resolution |
+| `CUDA error (flash-attention)` | Script auto-disables xformers, or uninstall it |
 | `FileNotFoundError: video_depth_anything_vitl.pth` | Run `./download_models.sh` |
 | `FileNotFoundError: metric_video_depth_anything` | Set `metric: false` in config.yaml |
 | `ZeroDivisionError: float division by zero` | Re-encode video with `ffmpeg -r 30` |
