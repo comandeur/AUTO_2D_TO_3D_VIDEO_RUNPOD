@@ -13,7 +13,9 @@ depth_settings:
   # Maximum length of input video (-1 for no limit)
   max_len: -1
 
-  # Target FPS (-1 for original fps)
+  # Target FPS for processing (-1 for original fps, don't specify to use video's native fps)
+  # Leave at -1 to process at the video's original frame rate
+  # Set to a positive number (e.g., 15, 24, 30) to downsample fps
   target_fps: -1
 
   # Use fp32 precision instead of fp16 (slower but more accurate)

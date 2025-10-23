@@ -184,8 +184,11 @@ def process_video(video_path, config, vda_path, output_folder):
     if depth_settings.get('max_len', -1) != -1:
         cmd.extend(['--max_len', str(depth_settings['max_len'])])
 
-    if depth_settings.get('target_fps', -1) != -1:
-        cmd.extend(['--target_fps', str(depth_settings['target_fps'])])
+    # Only add target_fps if explicitly set to a positive value
+    # -1 means "use original fps" - don't pass parameter at all
+    target_fps_value = depth_settings.get('target_fps', -1)
+    if target_fps_value > 0:  # Only pass if it's a valid positive number
+        cmd.extend(['--target_fps', str(target_fps_value)])
 
     if depth_settings.get('fp32'):
         cmd.append('--fp32')

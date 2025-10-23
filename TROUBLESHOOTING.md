@@ -424,6 +424,47 @@ Based on your config.yaml `encoder` setting:
 
 ---
 
+### Error: `ZeroDivisionError: float division by zero` in dc_utils.py
+
+**Problem:** Video-Depth-Anything is trying to divide by zero when processing FPS.
+
+**Cause:** This usually happens when:
+1. The video file has invalid or missing FPS metadata
+2. target_fps is set to 0 or an invalid value
+
+**Solutions:**
+
+1. **Check your video file:**
+   ```bash
+   ffprobe -i in/your-video.mp4
+   ```
+   Look for the fps value. If it shows 0 or N/A, the video file may be corrupted.
+
+2. **Re-encode the video:**
+   ```bash
+   ffmpeg -i input.mp4 -c:v libx264 -preset fast -crf 22 -r 30 output.mp4
+   ```
+   This creates a new video with explicit 30 fps.
+
+3. **Verify config.yaml:**
+   ```yaml
+   depth_settings:
+     target_fps: -1  # Should be -1 (use original) or a positive number like 30
+   ```
+
+   **Never set target_fps to 0!**
+
+4. **Try with a different video:**
+   Test with a known-good video file to rule out file corruption.
+
+5. **Check video format:**
+   Some unusual video formats may not report FPS correctly. Convert to MP4:
+   ```bash
+   ffmpeg -i input.webm -c:v libx264 output.mp4
+   ```
+
+---
+
 ## Output Issues
 
 ### Depth video is blank or all black
@@ -608,6 +649,7 @@ If you're still experiencing issues:
 | `CUDA out of memory` | Use small model or lower resolution |
 | `FileNotFoundError: video_depth_anything_vitl.pth` | Run `./download_models.sh` |
 | `FileNotFoundError: metric_video_depth_anything` | Set `metric: false` in config.yaml |
+| `ZeroDivisionError: float division by zero` | Re-encode video with `ffmpeg -r 30` |
 | `ffmpeg: command not found` | `apt-get install ffmpeg` |
 | `No videos found` | Check files are in `in/` folder |
 | Blank depth output | Check input video is valid |
