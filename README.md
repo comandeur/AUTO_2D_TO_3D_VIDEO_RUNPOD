@@ -15,6 +15,18 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
 - Support for both small and large models
 - Preparation for SBS output using StereoPhotoMaker
 
+## Hardware Requirements
+
+**IMPORTANT**: Before starting, please review the [Hardware Requirements Guide](HARDWARE_REQUIREMENTS.md) for:
+
+- **GPU Recommendations**: Which GPU to choose (RTX 4090 recommended)
+- **PyTorch Version**: PyTorch 2.0+ with CUDA 11.8 or 12.1
+- **Storage Size**: 100GB recommended (30GB minimum)
+- **Cost Estimates**: ~$0.50/hour for RTX 4090 spot instance
+- **Performance Estimates**: Processing time by video length and resolution
+
+**Quick Answer**: Use **RTX 4090 (24GB)** with **100GB storage** and **PyTorch 2.1 template** for best results.
+
 ## Quick Start
 
 ### On RunPod
