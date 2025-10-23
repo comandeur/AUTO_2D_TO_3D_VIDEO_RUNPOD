@@ -12,7 +12,7 @@ pip3 install --upgrade pip setuptools wheel
 
 echo ""
 echo "[INFO] Installing common missing dependencies..."
-pip3 install opencv-python opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib
+pip3 install opencv-python opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg
 
 echo ""
 echo "[INFO] Verifying installations..."
