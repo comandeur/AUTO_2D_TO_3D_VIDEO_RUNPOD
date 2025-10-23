@@ -4,6 +4,56 @@ Common issues and solutions for the 2D to 3D video conversion workflow.
 
 ---
 
+---
+
+### Error: `AttributeError: module 'pkgutil' has no attribute 'ImpImporter'`
+
+**Problem:** Python 3.12 compatibility issue with old package versions.
+
+**Cause:** Video-Depth-Anything's requirements.txt specifies old packages (like numpy==1.24.0) that don't work with Python 3.12.
+
+**Solution:**
+
+The setup script has been updated to handle this automatically. If you still encounter this:
+
+```bash
+# Install Python 3.12-compatible versions manually
+pip3 install --upgrade pip setuptools
+
+# Install compatible packages
+pip3 install \
+    "numpy>=1.26.0" \
+    "opencv-python>=4.8.0" \
+    "pillow>=10.0.0" \
+    "tqdm>=4.65.0" \
+    "einops>=0.7.0"
+
+# Then run setup again
+./setup_runpod.sh
+```
+
+**Why this happens:**
+- Python 3.12 removed deprecated `pkgutil.ImpImporter`
+- Old numpy versions (< 1.26.0) use this deprecated feature
+- Video-Depth-Anything was written for older Python versions
+
+**Fixed in:** Latest setup script automatically installs compatible versions.
+
+---
+
+### Error: `Cannot uninstall wheel` from debian
+
+**Problem:** Trying to upgrade system-installed wheel package.
+
+**Solution:** This warning can be ignored. The setup script has been updated to skip this.
+
+```bash
+# If you still see this error, run:
+pip3 install --upgrade pip setuptools --ignore-installed
+```
+
+---
+
 ## Installation & Setup Issues
 
 ### Error: `ModuleNotFoundError: No module named 'cv2'`
@@ -646,6 +696,8 @@ If you're still experiencing issues:
 | `No module named 'matplotlib'` | `pip3 install matplotlib` |
 | `No module named 'imageio'` | `pip3 install imageio imageio-ffmpeg` |
 | `No module named 'xformers'` | `pip3 install xformers` |
+| `AttributeError: module 'pkgutil' has no attribute 'ImpImporter'` | Python 3.12 issue - run setup script again |
+| `Cannot uninstall wheel` | Ignore this warning (system package) |
 | `CUDA out of memory` | Use small model or lower resolution |
 | `FileNotFoundError: video_depth_anything_vitl.pth` | Run `./download_models.sh` |
 | `FileNotFoundError: metric_video_depth_anything` | Set `metric: false` in config.yaml |

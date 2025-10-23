@@ -105,22 +105,36 @@ cd Video-Depth-Anything
 print_info "Installing Python dependencies for Video-Depth-Anything..."
 print_info "This may take a few minutes..."
 
+# Check Python version
+PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+print_info "Python version: $PYTHON_VERSION"
+
 # Install common dependencies explicitly to avoid issues
 print_info "Installing core dependencies..."
-pip3 install --upgrade pip setuptools wheel || print_error "Failed to upgrade pip"
+# Don't upgrade wheel if it's from debian package - causes issues
+pip3 install --upgrade pip setuptools 2>&1 | grep -v "uninstall-no-record-file" || true
 
-# Install Video-Depth-Anything requirements
-if [ -f "requirements.txt" ]; then
-    print_info "Installing from requirements.txt..."
-    pip3 install -r requirements.txt
-    if [ $? -ne 0 ]; then
-        print_error "Failed to install Python requirements from requirements.txt"
-        exit 1
-    fi
-else
-    print_info "requirements.txt not found, installing common dependencies manually..."
-    pip3 install torch torchvision opencv-python pillow numpy tqdm
+# IMPORTANT: Video-Depth-Anything's requirements.txt has old versions that don't work with Python 3.12
+# We install compatible versions manually instead
+print_info "Installing Python 3.12-compatible dependencies..."
+
+# Install PyTorch and torchvision (should already be installed from RunPod template)
+if ! python3 -c "import torch" 2>/dev/null; then
+    print_info "PyTorch not found, installing..."
+    pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 fi
+
+# Install compatible versions for Python 3.12
+print_info "Installing compatible package versions..."
+pip3 install \
+    "numpy>=1.26.0" \
+    "opencv-python>=4.8.0" \
+    "pillow>=10.0.0" \
+    "tqdm>=4.65.0" \
+    "einops>=0.7.0" \
+    "huggingface-hub>=0.19.0"
+
+print_success "Core dependencies installed with Python 3.12-compatible versions"
 
 # Install additional common dependencies that might be missing
 print_info "Installing additional dependencies..."
