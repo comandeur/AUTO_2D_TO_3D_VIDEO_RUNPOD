@@ -34,8 +34,59 @@ def check_video_depth_anything_setup(vda_path):
 
     checkpoints_dir = os.path.join(vda_path, "checkpoints")
     if not os.path.exists(checkpoints_dir):
-        print(f"WARNING: checkpoints directory not found at {checkpoints_dir}")
-        print("You may need to download model checkpoints")
+        print(f"ERROR: checkpoints directory not found at {checkpoints_dir}")
+        print("Please run ./download_models.sh to download model checkpoints")
+        return False
+
+    return True
+
+
+def check_model_checkpoints(vda_path, encoder, metric=False):
+    """Check if required model checkpoints exist"""
+    checkpoints_dir = os.path.join(vda_path, "checkpoints")
+
+    # Determine checkpoint filename based on settings
+    if metric:
+        checkpoint_file = f"metric_video_depth_anything_{encoder}.pth"
+    else:
+        checkpoint_file = f"video_depth_anything_{encoder}.pth"
+
+    checkpoint_path = os.path.join(checkpoints_dir, checkpoint_file)
+
+    if not os.path.exists(checkpoint_path):
+        print(f"\n{'='*80}")
+        print(f"ERROR: Model checkpoint not found!")
+        print(f"{'='*80}")
+        print(f"Missing file: {checkpoint_file}")
+        print(f"Expected location: {checkpoint_path}")
+        print(f"\nConfiguration:")
+        print(f"  encoder: {encoder}")
+        print(f"  metric: {metric}")
+        print(f"\nRequired checkpoint: {checkpoint_file}")
+        print(f"\n{'='*80}")
+        print(f"SOLUTION:")
+        print(f"{'='*80}")
+        print(f"\n1. Run the model download script:")
+        print(f"   ./download_models.sh")
+        print(f"\n2. Or download manually:")
+        if encoder == "vits":
+            model_url = "https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth"
+            print(f"   wget -P {checkpoints_dir} {model_url}")
+        else:  # vitl
+            model_url = "https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_vitl.pth"
+            print(f"   wget -P {checkpoints_dir} {model_url}")
+
+        if metric:
+            print(f"\nNOTE: You have metric: true in config.yaml")
+            print(f"Metric models may not be publicly available.")
+            print(f"For 3D conversion, set metric: false in config.yaml")
+
+        print(f"\n{'='*80}\n")
+        return False
+
+    # Checkpoint exists, show info
+    file_size = os.path.getsize(checkpoint_path) / (1024 * 1024)  # Convert to MB
+    print(f"✓ Model checkpoint found: {checkpoint_file} ({file_size:.1f} MB)")
 
     return True
 
@@ -219,6 +270,17 @@ def main():
 
     # Check Video-Depth-Anything setup
     if not check_video_depth_anything_setup(vda_path):
+        sys.exit(1)
+
+    # Check model checkpoints exist before processing
+    depth_settings = config['depth_settings']
+    encoder = depth_settings.get('encoder', 'vitl')
+    metric = depth_settings.get('metric', False)
+
+    print(f"\nVerifying model checkpoints...")
+    print(f"Model configuration: encoder={encoder}, metric={metric}")
+
+    if not check_model_checkpoints(vda_path, encoder, metric):
         sys.exit(1)
 
     # Create output folder if it doesn't exist

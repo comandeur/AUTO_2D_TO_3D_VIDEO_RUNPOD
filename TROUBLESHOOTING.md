@@ -341,6 +341,52 @@ If downloads fail, metric models are not publicly available. Use `metric: false`
 
 ---
 
+### Error: `FileNotFoundError: video_depth_anything_vitl.pth`
+
+**Problem:** Model checkpoint files are missing from the checkpoints directory.
+
+**Quick Solution:**
+
+Run the model download script:
+```bash
+./download_models.sh
+```
+
+This will download both Small and Large models (~800 MB total).
+
+**What models are needed:**
+
+Based on your config.yaml `encoder` setting:
+- `encoder: "vits"` → needs `video_depth_anything_vits.pth` (100 MB)
+- `encoder: "vitl"` → needs `video_depth_anything_vitl.pth` (700 MB)
+
+**Manual download options:**
+
+1. **Using wget (recommended):**
+   ```bash
+   cd Video-Depth-Anything/checkpoints
+
+   # Small model
+   wget https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth
+
+   # Large model
+   wget https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_vitl.pth
+   ```
+
+2. **Using browser:**
+   - Go to [Video-Depth-Anything-Small](https://huggingface.co/depth-anything/Video-Depth-Anything-Small/tree/main)
+   - Download `video_depth_anything_vits.pth`
+   - Go to [Video-Depth-Anything-Large](https://huggingface.co/depth-anything/Video-Depth-Anything-Large/tree/main)
+   - Download `video_depth_anything_vitl.pth`
+   - Upload to RunPod: `Video-Depth-Anything/checkpoints/`
+
+3. **Verify models are in place:**
+   ```bash
+   ls -lh Video-Depth-Anything/checkpoints/*.pth
+   ```
+
+---
+
 ### Model checkpoint download fails
 
 **Problem:** wget cannot download model checkpoints from Hugging Face.
@@ -350,25 +396,29 @@ If downloads fail, metric models are not publicly available. Use `metric: false`
 1. **Check internet connection:**
    ```bash
    ping google.com
+   ping huggingface.co
    ```
 
-2. **Retry the setup:**
+2. **Retry with the download script:**
    ```bash
-   ./setup_runpod.sh
+   ./download_models.sh
    ```
 
-3. **Manual download:**
+3. **Check disk space:**
    ```bash
+   df -h
+   ```
+   Models need ~800 MB total space.
+
+4. **Try different download method:**
+   ```bash
+   # Using curl instead of wget
    cd Video-Depth-Anything/checkpoints
-
-   # Small model (relative depth)
-   wget https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth
-
-   # Large model (relative depth)
-   wget https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_vitl.pth
+   curl -L -o video_depth_anything_vitl.pth \
+     https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_vitl.pth
    ```
 
-4. **Download from browser and upload to RunPod:**
+5. **Download from browser and upload to RunPod:**
    - Download models from Hugging Face in your browser
    - Upload via RunPod web interface to `Video-Depth-Anything/checkpoints/`
 
@@ -556,6 +606,7 @@ If you're still experiencing issues:
 | `No module named 'imageio'` | `pip3 install imageio imageio-ffmpeg` |
 | `No module named 'xformers'` | `pip3 install xformers` |
 | `CUDA out of memory` | Use small model or lower resolution |
+| `FileNotFoundError: video_depth_anything_vitl.pth` | Run `./download_models.sh` |
 | `FileNotFoundError: metric_video_depth_anything` | Set `metric: false` in config.yaml |
 | `ffmpeg: command not found` | `apt-get install ffmpeg` |
 | `No videos found` | Check files are in `in/` folder |

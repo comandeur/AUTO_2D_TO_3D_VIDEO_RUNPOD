@@ -52,25 +52,38 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
    This will:
    - Install system dependencies (ffmpeg, git, etc.)
    - Clone Video-Depth-Anything repository
-   - Download model checkpoints (Small and Large)
    - Install Python dependencies
    - Create necessary folder structure
 
-4. **Add Your Videos**
+4. **Download Model Checkpoints**
+   ```bash
+   ./download_models.sh
+   ```
+
+   This downloads the AI models (~800 MB total):
+   - Small model (100 MB) - faster processing
+   - Large model (700 MB) - better quality
+
+5. **Add Your Videos**
    ```bash
    # Upload your 2D videos to the 'in' folder
    # You can use RunPod's file upload or wget/curl
    ```
 
-5. **Configure Settings (Optional)**
+6. **Configure Settings (Optional)**
    Edit `config.yaml` to adjust processing parameters:
    ```bash
    nano config.yaml
    ```
 
-6. **Process Videos**
+7. **Process Videos**
    ```bash
    ./process_video.py
+   ```
+
+   If you get a model checkpoint error, run:
+   ```bash
+   ./download_models.sh
    ```
 
 ## Folder Structure
