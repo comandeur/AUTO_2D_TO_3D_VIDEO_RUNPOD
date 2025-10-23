@@ -208,7 +208,35 @@ pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict ma
 
 ---
 
-### Error: `CUDA out of memory`
+### Error: `CUDA out of memory` (Memory Fragmentation)
+
+**Problem:** CUDA memory fragmentation preventing allocation even when you have enough total VRAM.
+
+**Symptoms:**
+- Error shows plenty of free VRAM (e.g., "11.08 GiB is free")
+- Error message says "large reserved but unallocated memory"
+- Error suggests: "try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True"
+
+**Solution (Automatic):**
+
+The processing script has been updated to automatically set the memory management flag. If you still encounter this:
+
+```bash
+# Set environment variable before running
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+./process_video.py
+```
+
+**Why this happens:**
+- PyTorch reserves memory in chunks
+- Memory fragmentation prevents large allocations
+- Expandable segments allow PyTorch to better manage memory
+
+**Fixed in:** Latest process_video.py automatically sets this.
+
+---
+
+### Error: `CUDA out of memory` (Insufficient VRAM)
 
 **Problem:** Your GPU doesn't have enough VRAM for the current settings.
 

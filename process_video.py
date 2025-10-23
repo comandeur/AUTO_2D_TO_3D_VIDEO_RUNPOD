@@ -212,6 +212,10 @@ def process_video(video_path, config, vda_path, output_folder):
         env['XFORMERS_DISABLED'] = '1'
         env['XFORMERS_FORCE_DISABLE_TRITON'] = '1'
 
+        # Fix CUDA memory fragmentation issue
+        # Enables expandable memory segments to avoid fragmentation errors
+        env['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+
         process = subprocess.Popen(
             cmd,
             cwd=vda_path,  # Run from Video-Depth-Anything directory!
