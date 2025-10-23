@@ -1,0 +1,54 @@
+# Video files (inputs and outputs)
+in/*
+!in/.gitkeep
+depth/*
+!depth/.gitkeep
+
+# Video-Depth-Anything repository
+Video-Depth-Anything/
+
+# StereoPhotoMaker
+stereophotomaker/*
+!stereophotomaker/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

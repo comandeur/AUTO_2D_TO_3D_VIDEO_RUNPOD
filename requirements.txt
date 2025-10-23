@@ -1,0 +1,14 @@
+# Python dependencies for 2D to 3D Video Conversion automation
+
+# Configuration management
+pyyaml>=6.0
+
+# Note: Video-Depth-Anything has its own requirements.txt
+# which will be installed during setup
+# Main dependencies from Video-Depth-Anything include:
+# - torch
+# - torchvision
+# - opencv-python
+# - pillow
+# - numpy
+# - tqdm

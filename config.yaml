@@ -1,0 +1,44 @@
+# Configuration file for 2D to 3D Video Conversion
+
+# Video-Depth-Anything settings
+depth_settings:
+  # Model encoder: 'vits' (small, 28.4M params) or 'vitl' (large, 381.8M params)
+  encoder: "vitl"
+
+  # Use metric depth (trained on Virtual KITTI and IRS datasets)
+  metric: true
+
+  # Maximum length of input video (-1 for no limit)
+  max_len: -1
+
+  # Target FPS (-1 for original fps)
+  target_fps: -1
+
+  # Use fp32 precision instead of fp16 (slower but more accurate)
+  fp32: false
+
+  # Save grayscale depth map without color palette
+  grayscale: false
+
+# Input/Output settings
+paths:
+  input_folder: "in"
+  depth_output_folder: "depth"
+  stereophotomaker_folder: "stereophotomaker"
+  video_depth_anything_folder: "Video-Depth-Anything"
+
+# Processing settings
+processing:
+  # Show progress every N frames
+  progress_update_frequency: 10
+
+  # Process all videos in input folder (true) or just one specific file (false)
+  batch_process: true
+
+  # Specific video file to process (if batch_process is false)
+  single_video_file: ""
+
+# StereoPhotoMaker settings (for future SBS conversion)
+sbs_settings:
+  # To be configured later
+  enabled: false
