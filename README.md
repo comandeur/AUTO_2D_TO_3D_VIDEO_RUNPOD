@@ -13,6 +13,7 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
 - Real-time progress monitoring (frames/time)
 - Configurable depth estimation parameters
 - Support for both small and large models
+- **Grayscale depth output optimized for 3D conversion**
 - Preparation for SBS output using StereoPhotoMaker
 
 ## Hardware Requirements
@@ -104,7 +105,11 @@ Edit `config.yaml` to customize processing:
 
 - **fp32**: Use 32-bit precision instead of 16-bit (slower but more accurate)
 
-- **grayscale**: Output grayscale depth maps without color
+- **grayscale**: Output grayscale depth maps (default: `true`)
+  - **IMPORTANT**: Set to `true` for 3D/SBS conversion
+  - Grayscale = pure depth values needed by StereoPhotoMaker
+  - Colorized = visualization only (cannot be used for 3D)
+  - See [Depth Map Guide](DEPTH_MAP_GUIDE.md) for details
 
 ### Processing Settings
 

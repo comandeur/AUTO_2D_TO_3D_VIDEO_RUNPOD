@@ -18,7 +18,10 @@ depth_settings:
   fp32: false
 
   # Save grayscale depth map without color palette
-  grayscale: false
+  # IMPORTANT: Set to true for 3D/SBS conversion (StereoPhotoMaker needs grayscale)
+  # Grayscale = pure depth values (0-255), Colorized = visualization only
+  # For 3D conversion, you MUST use grayscale depth maps
+  grayscale: true
 
 # Input/Output settings
 paths:

@@ -65,6 +65,7 @@ Key settings:
 - `encoder: "vitl"` - Large model (better quality, slower)
 - `encoder: "vits"` - Small model (faster, good quality)
 - `metric: true` - Use metric depth estimation
+- `grayscale: true` - **Already set by default** (required for 3D/SBS conversion)
 
 ### 6. Run the Conversion
 
@@ -99,9 +100,14 @@ Results are saved in the `depth/` folder:
 ```
 depth/
 └── myvideo/
-    ├── depth_video.mp4
+    ├── depth_video.mp4  # Grayscale depth map (ready for 3D conversion)
     └── [other files]
 ```
+
+**Important**: The output is a **grayscale** depth map where:
+- White/bright = Close to camera
+- Black/dark = Far from camera
+- This format is required for StereoPhotoMaker and 3D conversion
 
 **Download using RunPod Web UI:**
 1. Navigate to `depth/` folder
