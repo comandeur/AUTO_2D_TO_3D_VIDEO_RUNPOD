@@ -124,7 +124,7 @@ fi
 
 # Install additional common dependencies that might be missing
 print_info "Installing additional dependencies..."
-pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict
+pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib
 
 # Verify critical imports
 print_info "Verifying Python dependencies..."

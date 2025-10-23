@@ -103,6 +103,17 @@ pip3 install easydict
 
 ---
 
+### Error: `ModuleNotFoundError: No module named 'matplotlib'`
+
+**Problem:** matplotlib (plotting and visualization library) is not installed.
+
+**Solution:**
+```bash
+pip3 install matplotlib
+```
+
+---
+
 ### Quick Fix for All Missing Dependencies
 
 If you're getting multiple `ModuleNotFoundError` messages, run:
@@ -111,9 +122,11 @@ If you're getting multiple `ModuleNotFoundError` messages, run:
 ./fix_dependencies.sh
 ```
 
+This script automatically installs all common missing dependencies.
+
 Or manually install all common dependencies:
 ```bash
-pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict notebook ipywidgets
+pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict matplotlib notebook ipywidgets
 ```
 
 ---
@@ -473,6 +486,7 @@ If you're still experiencing issues:
 | `No module named 'tqdm'` | `pip3 install tqdm` |
 | `No module named 'einops'` | `pip3 install einops` |
 | `No module named 'easydict'` | `pip3 install easydict` |
+| `No module named 'matplotlib'` | `pip3 install matplotlib` |
 | `CUDA out of memory` | Use small model or lower resolution |
 | `ffmpeg: command not found` | `apt-get install ffmpeg` |
 | `No videos found` | Check files are in `in/` folder |

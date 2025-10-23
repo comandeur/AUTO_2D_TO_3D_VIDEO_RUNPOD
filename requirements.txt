@@ -14,6 +14,9 @@ opencv-python-headless>=4.8.0
 einops>=0.7.0
 easydict>=1.10
 
+# Visualization
+matplotlib>=3.7.0
+
 # For Jupyter notebook support on RunPod
 notebook>=7.0.0
 ipywidgets>=8.0.0
