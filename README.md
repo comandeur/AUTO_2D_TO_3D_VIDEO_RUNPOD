@@ -38,7 +38,7 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
 
 2. **Clone This Repository**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/comandeur/AUTO_2D_TO_3D_VIDEO_RUNPOD
    cd AUTO_2D_TO_3D_VIDEO_RUNPOD
    ```
 
