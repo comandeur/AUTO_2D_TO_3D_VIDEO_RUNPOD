@@ -775,6 +775,100 @@ If you're still experiencing issues:
 
 ---
 
+### Error: `Process failed with return code -9` (OOM Killed)
+
+**Problem:** Process was killed by the system OOM (Out Of Memory) killer during final video encoding.
+
+**Symptoms:**
+- Processing reaches 100% (all frames processed)
+- Fails during final step with "return code -9"
+- All depth frames were generated successfully
+- Final video encoding failed
+
+**What happened:**
+- Return code -9 = SIGKILL (process forcefully killed)
+- System ran out of RAM (not GPU VRAM) during video encoding
+- Video-Depth-Anything loads all processed frames into memory to create the final video
+- Long videos with many frames can exhaust system RAM
+
+**Immediate Solution - Recover Your Work:**
+
+Your depth frames were successfully processed! You can manually encode them:
+
+```bash
+# Run diagnostic to check status
+./diagnose_oom.sh
+
+# Automatically fix and encode video from existing frames
+./fix_oom.sh
+```
+
+Or manually encode:
+```bash
+cd depth/PregnancyCravingsGoneWrongNew
+ffmpeg -framerate 23.98 -pattern_type glob -i '*.png' \
+  -c:v libx264 -crf 18 -pix_fmt yuv420p \
+  -movflags +faststart depth_video.mp4
+```
+
+**Prevention Solutions:**
+
+1. **Upgrade RunPod instance with more RAM:**
+   - 16GB RAM minimum for long videos
+   - 32GB RAM recommended for 4K or 10+ minute videos
+   - Check current RAM: `free -h`
+
+2. **Add swap space (temporary fix):**
+   ```bash
+   sudo fallocate -l 16G /swapfile
+   sudo chmod 600 /swapfile
+   sudo mkswap /swapfile
+   sudo swapon /swapfile
+   ```
+
+3. **Use smaller model:**
+   ```yaml
+   # In config.yaml
+   depth_settings:
+     encoder: "vits"  # Uses less memory than vitl
+   ```
+
+4. **Process shorter segments:**
+   ```yaml
+   depth_settings:
+     max_len: 300  # Process first 5 minutes only
+   ```
+
+5. **Reduce target FPS:**
+   ```yaml
+   depth_settings:
+     target_fps: 15  # Fewer frames = less memory needed
+   ```
+
+6. **Process video in chunks:**
+   - Split your video into smaller segments
+   - Process each segment separately
+   - Merge final depth videos with ffmpeg
+
+**Why this happens:**
+- Video-Depth-Anything processes frames efficiently using GPU VRAM
+- After processing, it loads ALL frames into system RAM to encode final video
+- Long videos (10+ minutes, 10,000+ frames) can require 16GB+ RAM for encoding
+- Your GPU VRAM is fine - this is a system RAM issue
+
+**Verify your work wasn't lost:**
+```bash
+# Check if frames exist
+ls depth/PregnancyCravingsGoneWrongNew/
+
+# Count frames processed
+find depth/PregnancyCravingsGoneWrongNew -name "*.png" | wc -l
+```
+
+If you see frame files, your processing succeeded! Just need to encode the video.
+
+---
+
 ## Common Error Messages Quick Reference
 
 | Error | Quick Fix |
@@ -792,6 +886,7 @@ If you're still experiencing issues:
 | `Cannot uninstall wheel` | Ignore this warning (system package) |
 | `CUDA out of memory` | Use small model or lower resolution |
 | `CUDA error (flash-attention)` | Script auto-disables xformers, or uninstall it |
+| `Process failed with return code -9` | Run `./fix_oom.sh` to encode from existing frames |
 | `FileNotFoundError: video_depth_anything_vitl.pth` | Run `./download_models.sh` |
 | `FileNotFoundError: metric_video_depth_anything` | Set `metric: false` in config.yaml |
 | `ZeroDivisionError: float division by zero` | Re-encode video with `ffmpeg -r 30` |
