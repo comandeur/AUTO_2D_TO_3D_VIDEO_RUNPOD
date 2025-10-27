@@ -172,11 +172,11 @@ def process_video(video_path, config, vda_path, output_folder):
     processing_settings = config['processing']
     save_frames_only = processing_settings.get('save_frames_only', True)
 
-    # Use run_save_frames.py if save_frames_only is enabled (default)
-    # This saves individual PNG frames instead of encoding video, preventing OOM
+    # Use run_with_frame_saving.py if save_frames_only is enabled (default)
+    # This saves individual PNG frames AND tries to encode video
     if save_frames_only:
-        # Use our custom frame-saving script
-        script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'run_save_frames.py'))
+        # Use our frame-saving wrapper (runs Video-Depth-Anything code but saves frames)
+        script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'run_with_frame_saving.py'))
         cmd = [
             'python3',
             script_path,
@@ -184,7 +184,9 @@ def process_video(video_path, config, vda_path, output_folder):
             '--output_dir', video_output_dir,
             '--encoder', depth_settings['encoder']
         ]
-        print("[MODE] Saving individual frames (prevents OOM, allows local encoding)")
+        print("[MODE] Saving individual frames (prevents data loss, allows local encoding)")
+        print("  - Frames saved as PNG files during processing")
+        print("  - Video encoding attempted (may fail with OOM, but frames are safe)")
     else:
         # Use original run.py for direct video encoding
         cmd = [
