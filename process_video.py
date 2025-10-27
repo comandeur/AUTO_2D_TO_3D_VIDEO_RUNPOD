@@ -218,10 +218,12 @@ def process_video(video_path, config, vda_path, output_folder):
     # Determine working directory based on mode
     if save_frames_only:
         # Frame-saving mode: run from project root (where Video-Depth-Anything folder exists)
-        work_dir = os.path.dirname(__file__) or os.getcwd()
+        work_dir = os.path.dirname(os.path.abspath(__file__))
+        if not work_dir:  # If __file__ is not set, use current directory
+            work_dir = os.path.abspath(os.getcwd())
     else:
         # Video encoding mode: run from Video-Depth-Anything directory (for relative paths)
-        work_dir = vda_path
+        work_dir = os.path.abspath(vda_path)
 
     print(f"\nCommand: {' '.join(cmd)}")
     print(f"Working directory: {work_dir}")

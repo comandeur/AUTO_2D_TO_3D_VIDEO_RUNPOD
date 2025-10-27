@@ -19,18 +19,37 @@ from tqdm import tqdm
 
 # Find Video-Depth-Anything directory relative to this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
-vda_path = os.path.join(script_dir, 'Video-Depth-Anything')
+vda_path = os.path.abspath(os.path.join(script_dir, 'Video-Depth-Anything'))
+
+# Debug info
+print(f"Script directory: {script_dir}")
+print(f"Looking for Video-Depth-Anything at: {vda_path}")
 
 # Add Video-Depth-Anything to path
 if os.path.exists(vda_path):
     sys.path.insert(0, vda_path)
+    print(f"Added to Python path: {vda_path}")
+
+    # Verify the utils module exists
+    utils_path = os.path.join(vda_path, 'utils')
+    if os.path.exists(utils_path):
+        print(f"✓ Found utils directory: {utils_path}")
+    else:
+        print(f"ERROR: utils directory not found at {utils_path}")
+        sys.exit(1)
 else:
     print(f"ERROR: Video-Depth-Anything not found at {vda_path}")
     print("Please run setup_runpod.sh first")
     sys.exit(1)
 
-from utils.dc_utils import read_video_frames
-from video_depth_anything import VideoDepthAnything
+try:
+    from utils.dc_utils import read_video_frames
+    from video_depth_anything import VideoDepthAnything
+    print("✓ Successfully imported Video-Depth-Anything modules")
+except ImportError as e:
+    print(f"ERROR: Failed to import Video-Depth-Anything modules: {e}")
+    print(f"Python path: {sys.path[:3]}")
+    sys.exit(1)
 
 
 def save_depth_frame(depth, output_path, grayscale=True):
