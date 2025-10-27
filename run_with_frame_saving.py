@@ -7,7 +7,7 @@ by monkey-patching the save_video function.
 import os
 import sys
 
-# Change to Video-Depth-Anything directory FIRST, before any other imports
+# Find Video-Depth-Anything directory
 vda_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Video-Depth-Anything')
 
 if not os.path.exists(vda_dir):
@@ -15,19 +15,40 @@ if not os.path.exists(vda_dir):
     print("Please run setup_runpod.sh first")
     sys.exit(1)
 
-print(f"Changing to Video-Depth-Anything directory: {vda_dir}")
-os.chdir(vda_dir)
-print(f"Current directory: {os.getcwd()}")
+print(f"Video-Depth-Anything directory: {vda_dir}")
 
-# Now import after changing directory
+# Ensure utils has __init__.py (required for Python package imports)
+utils_init = os.path.join(vda_dir, 'utils', '__init__.py')
+if not os.path.exists(utils_init):
+    print(f"Creating missing __init__.py in utils directory...")
+    open(utils_init, 'a').close()
+
+# Add to Python path AND change directory
+sys.path.insert(0, vda_dir)
+os.chdir(vda_dir)
+
+print(f"Current directory: {os.getcwd()}")
+print(f"Python path includes: {vda_dir}")
+
+# Now import - should work because we're in the directory AND it's in sys.path
 import numpy as np
 import imageio
 import argparse
 import torch
-from utils.dc_utils import read_video_frames
-from video_depth_anything import VideoDepthAnything
 
-print("✓ Successfully imported Video-Depth-Anything modules")
+# Import Video-Depth-Anything modules
+try:
+    from utils.dc_utils import read_video_frames
+    from video_depth_anything import VideoDepthAnything
+    print("✓ Successfully imported Video-Depth-Anything modules")
+except ImportError as e:
+    print(f"ERROR: Import failed: {e}")
+    print(f"Current directory: {os.getcwd()}")
+    print(f"sys.path: {sys.path[:3]}")
+    print(f"\nChecking if files exist:")
+    print(f"  utils/dc_utils.py: {os.path.exists('utils/dc_utils.py')}")
+    print(f"  video_depth_anything/__init__.py: {os.path.exists('video_depth_anything/__init__.py')}")
+    sys.exit(1)
 
 # Global variable to store output directory
 FRAME_OUTPUT_DIR = None
