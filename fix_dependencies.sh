@@ -12,7 +12,8 @@ pip3 install --upgrade pip setuptools wheel
 
 echo ""
 echo "[INFO] Installing common missing dependencies..."
-pip3 install opencv-python opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg xformers
+# NOTE: xformers is NOT installed - it causes flash-attention CUDA compatibility errors on some GPUs
+pip3 install opencv-python opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg
 
 echo ""
 echo "[INFO] Verifying installations..."
@@ -20,7 +21,7 @@ python3 -c "import cv2; print('✓ OpenCV (cv2):', cv2.__version__)" || echo "�
 python3 -c "import tqdm; print('✓ tqdm: OK')" || echo "✗ tqdm failed"
 python3 -c "import yaml; print('✓ PyYAML: OK')" || echo "✗ PyYAML failed"
 python3 -c "import einops; print('✓ einops: OK')" || echo "✗ einops failed"
-python3 -c "import xformers; print('✓ xformers:', xformers.__version__)" || echo "✗ xformers failed"
+# xformers verification removed - we don't install it anymore due to CUDA compatibility issues
 python3 -c "import torch; print('✓ PyTorch:', torch.__version__)" || echo "✗ PyTorch failed (install from template)"
 python3 -c "import numpy; print('✓ NumPy:', numpy.__version__)" || echo "✗ NumPy failed"
 

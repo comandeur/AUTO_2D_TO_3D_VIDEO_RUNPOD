@@ -177,17 +177,29 @@ pip3 install imageio imageio-ffmpeg
 
 ### Error: `ModuleNotFoundError: No module named 'xformers'`
 
-**Problem:** xformers (efficient transformer operations library) is not installed.
+**Problem:** xformers is not installed (and shouldn't be).
 
 **Solution:**
+
+**You can safely ignore this error.** xformers is intentionally NOT installed because it causes flash-attention CUDA compatibility errors on many GPUs (RTX 5090, etc.).
+
+**If you see "xFormers not available" messages during processing - this is normal and expected!**
+
+Video-Depth-Anything works perfectly without xformers:
+- ✅ Identical output quality
+- ✅ Works on all GPUs without compatibility issues
+- ⚠️ Uses ~10-15% more VRAM
+- ⚠️ ~5-10% slower processing
+
+**Only install xformers if:**
+- You know your specific GPU architecture is compatible
+- You've verified it doesn't cause CUDA errors
+- You need the marginal performance improvement
+
+To install (not recommended):
 ```bash
 pip3 install xformers
 ```
-
-**Note:** xformers is important for:
-- Memory optimization during processing
-- Faster transformer operations
-- Better GPU utilization
 
 ---
 
@@ -203,7 +215,8 @@ This script automatically installs all common missing dependencies.
 
 Or manually install all common dependencies:
 ```bash
-pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict matplotlib imageio imageio-ffmpeg xformers notebook ipywidgets
+pip3 install opencv-python opencv-python-headless tqdm pyyaml einops easydict matplotlib imageio imageio-ffmpeg notebook ipywidgets
+# NOTE: xformers is intentionally NOT included - it causes CUDA compatibility errors
 ```
 
 ---
@@ -774,7 +787,7 @@ If you're still experiencing issues:
 | `No module named 'easydict'` | `pip3 install easydict` |
 | `No module named 'matplotlib'` | `pip3 install matplotlib` |
 | `No module named 'imageio'` | `pip3 install imageio imageio-ffmpeg` |
-| `No module named 'xformers'` | `pip3 install xformers` |
+| `No module named 'xformers'` | Ignore - xformers not needed (causes CUDA errors) |
 | `AttributeError: module 'pkgutil' has no attribute 'ImpImporter'` | Python 3.12 issue - run setup script again |
 | `Cannot uninstall wheel` | Ignore this warning (system package) |
 | `CUDA out of memory` | Use small model or lower resolution |

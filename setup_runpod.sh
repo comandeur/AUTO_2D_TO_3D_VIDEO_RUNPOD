@@ -137,8 +137,9 @@ pip3 install \
 print_success "Core dependencies installed with Python 3.12-compatible versions"
 
 # Install additional common dependencies that might be missing
+# NOTE: xformers is NOT installed - it causes flash-attention CUDA compatibility errors on some GPUs
 print_info "Installing additional dependencies..."
-pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg xformers
+pip3 install opencv-python-headless tqdm pyyaml notebook ipywidgets einops easydict matplotlib imageio imageio-ffmpeg
 
 # Verify critical imports
 print_info "Verifying Python dependencies..."
@@ -148,7 +149,7 @@ python3 -c "import numpy; print('✓ NumPy:', numpy.__version__)" || (print_erro
 python3 -c "import tqdm; print('✓ tqdm: OK')" || (print_error "tqdm import failed" && exit 1)
 python3 -c "import einops; print('✓ einops: OK')" || (print_error "einops import failed" && exit 1)
 python3 -c "import yaml; print('✓ PyYAML: OK')" || (print_error "PyYAML import failed" && exit 1)
-python3 -c "import xformers; print('✓ xformers:', xformers.__version__)" || print_info "xformers not installed (optional but recommended)"
+# xformers verification removed - we don't install it anymore due to CUDA compatibility issues
 
 print_success "All Python dependencies installed and verified"
 

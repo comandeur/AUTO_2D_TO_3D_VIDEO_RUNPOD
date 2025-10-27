@@ -15,7 +15,8 @@ imageio-ffmpeg>=0.4.9
 # Deep learning utilities
 einops>=0.7.0
 easydict>=1.10
-xformers>=0.0.20  # Efficient transformer operations (memory optimization)
+# xformers - REMOVED: Causes flash-attention CUDA compatibility errors on some GPUs (RTX 5090, etc.)
+# Video-Depth-Anything works fine without it (identical quality, slightly slower)
 
 # Visualization
 matplotlib>=3.7.0
