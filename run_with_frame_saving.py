@@ -17,13 +17,19 @@ if not os.path.exists(vda_dir):
 
 print(f"Video-Depth-Anything directory: {vda_dir}")
 
-# Ensure both utils and video_depth_anything have __init__.py
-# Video-Depth-Anything repo is missing these files!
-for subdir in ['utils', 'video_depth_anything']:
-    init_file = os.path.join(vda_dir, subdir, '__init__.py')
-    if not os.path.exists(init_file):
-        print(f"Creating missing __init__.py in {subdir}/ ...")
-        open(init_file, 'a').close()
+# Ensure utils has __init__.py
+utils_init = os.path.join(vda_dir, 'utils', '__init__.py')
+if not os.path.exists(utils_init):
+    print(f"Creating missing __init__.py in utils/ ...")
+    open(utils_init, 'a').close()
+
+# Create proper __init__.py for video_depth_anything that exports VideoDepthAnything
+vda_init = os.path.join(vda_dir, 'video_depth_anything', '__init__.py')
+if not os.path.exists(vda_init) or os.path.getsize(vda_init) == 0:
+    print(f"Creating __init__.py in video_depth_anything/ with exports...")
+    with open(vda_init, 'w') as f:
+        f.write("from .video_depth import VideoDepthAnything\n")
+        f.write("__all__ = ['VideoDepthAnything']\n")
 
 # Add to Python path AND change directory
 sys.path.insert(0, vda_dir)
