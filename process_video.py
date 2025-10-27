@@ -215,13 +215,20 @@ def process_video(video_path, config, vda_path, output_folder):
     if depth_settings.get('grayscale'):
         cmd.append('--grayscale')
 
+    # Determine working directory based on mode
+    if save_frames_only:
+        # Frame-saving mode: run from project root (where Video-Depth-Anything folder exists)
+        work_dir = os.path.dirname(__file__) or os.getcwd()
+    else:
+        # Video encoding mode: run from Video-Depth-Anything directory (for relative paths)
+        work_dir = vda_path
+
     print(f"\nCommand: {' '.join(cmd)}")
-    print(f"Working directory: {vda_path}")
+    print(f"Working directory: {work_dir}")
     print(f"\nStarting conversion at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Output directory: {video_output_dir}\n")
 
-    # Run the process from within Video-Depth-Anything directory
-    # This is CRITICAL because run.py uses relative paths like ./checkpoints/
+    # Run the process
     start_time = time.time()
 
     try:
@@ -237,7 +244,7 @@ def process_video(video_path, config, vda_path, output_folder):
 
         process = subprocess.Popen(
             cmd,
-            cwd=vda_path,  # Run from Video-Depth-Anything directory!
+            cwd=work_dir,  # Set correct working directory based on mode
             env=env,  # Use modified environment with xformers disabled
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

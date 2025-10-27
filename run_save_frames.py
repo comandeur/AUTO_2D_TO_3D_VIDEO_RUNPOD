@@ -17,8 +17,17 @@ import imageio
 from pathlib import Path
 from tqdm import tqdm
 
+# Find Video-Depth-Anything directory relative to this script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+vda_path = os.path.join(script_dir, 'Video-Depth-Anything')
+
 # Add Video-Depth-Anything to path
-sys.path.insert(0, 'Video-Depth-Anything')
+if os.path.exists(vda_path):
+    sys.path.insert(0, vda_path)
+else:
+    print(f"ERROR: Video-Depth-Anything not found at {vda_path}")
+    print("Please run setup_runpod.sh first")
+    sys.exit(1)
 
 from utils.dc_utils import read_video_frames
 from video_depth_anything import VideoDepthAnything
@@ -52,9 +61,24 @@ def process_video_save_frames(args):
 
     # Initialize Video-Depth-Anything
     print(f"\nLoading model: {args.encoder}")
-    video_depth_anything = VideoDepthAnything.from_pretrained(
-        f'LiheYoung/video-depth-anything-{args.encoder}'
-    ).to(DEVICE).eval()
+
+    # Determine checkpoint path
+    if args.metric:
+        checkpoint_name = f"metric_video_depth_anything_{args.encoder}.pth"
+    else:
+        checkpoint_name = f"video_depth_anything_{args.encoder}.pth"
+
+    checkpoint_path = os.path.join(vda_path, 'checkpoints', checkpoint_name)
+
+    if not os.path.exists(checkpoint_path):
+        print(f"ERROR: Model checkpoint not found: {checkpoint_path}")
+        print("Please run: ./download_models.sh")
+        sys.exit(1)
+
+    # Load model
+    video_depth_anything = VideoDepthAnything(encoder=args.encoder)
+    video_depth_anything.load_state_dict(torch.load(checkpoint_path, map_location='cpu'))
+    video_depth_anything = video_depth_anything.to(DEVICE).eval()
 
     # Read video frames
     print(f"\nReading video: {args.input_video}")
