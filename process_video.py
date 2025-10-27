@@ -145,6 +145,103 @@ def get_video_info(video_path):
     return None
 
 
+def split_video_into_segments(video_path, segment_length, temp_dir):
+    """Split video into segments of specified length (in seconds)"""
+    print(f"\n{'='*80}")
+    print(f"Splitting video into {segment_length}-second segments...")
+    print(f"{'='*80}\n")
+
+    # Get video duration
+    video_info = get_video_info(video_path)
+    if not video_info:
+        print("ERROR: Could not get video info for segmentation")
+        return []
+
+    duration = video_info['duration']
+    num_segments = int(duration / segment_length) + (1 if duration % segment_length > 0 else 0)
+
+    print(f"Video duration: {duration:.2f}s ({duration/60:.1f} minutes)")
+    print(f"Segment length: {segment_length}s ({segment_length/60:.1f} minutes)")
+    print(f"Number of segments: {num_segments}\n")
+
+    # Create temp directory for segments
+    os.makedirs(temp_dir, exist_ok=True)
+
+    segments = []
+    for i in range(num_segments):
+        start_time = i * segment_length
+        segment_file = os.path.join(temp_dir, f"segment_{i:03d}.mp4")
+
+        print(f"Creating segment {i+1}/{num_segments}: {start_time}s - {start_time+segment_length}s")
+
+        # Use ffmpeg to extract segment
+        cmd = [
+            'ffmpeg',
+            '-y',  # Overwrite
+            '-ss', str(start_time),
+            '-i', str(video_path),
+            '-t', str(segment_length),
+            '-c', 'copy',  # Copy codec (fast, no re-encoding)
+            '-avoid_negative_ts', 'make_zero',
+            segment_file
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode == 0 and os.path.exists(segment_file):
+            segments.append(Path(segment_file))
+            print(f"  ✓ Created: {segment_file}")
+        else:
+            print(f"  ✗ Failed to create segment {i+1}")
+            print(f"  Error: {result.stderr[:200]}")
+
+    print(f"\n✓ Created {len(segments)} segments\n")
+    return segments
+
+
+def merge_depth_videos(segment_outputs, final_output_path, temp_dir):
+    """Merge multiple depth video segments into one final video"""
+    print(f"\n{'='*80}")
+    print(f"Merging {len(segment_outputs)} depth video segments...")
+    print(f"{'='*80}\n")
+
+    # Create concat file list
+    concat_file = os.path.join(temp_dir, 'concat_list.txt')
+
+    with open(concat_file, 'w') as f:
+        for segment_path in segment_outputs:
+            # ffmpeg concat format requires file paths
+            f.write(f"file '{os.path.abspath(segment_path)}'\n")
+
+    print(f"Merge list created: {concat_file}")
+    print(f"Output: {final_output_path}\n")
+
+    # Merge using ffmpeg concat
+    cmd = [
+        'ffmpeg',
+        '-y',
+        '-f', 'concat',
+        '-safe', '0',
+        '-i', concat_file,
+        '-c', 'copy',  # Copy codec (fast, no re-encoding)
+        final_output_path
+    ]
+
+    print("Running ffmpeg merge...")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    if result.returncode == 0 and os.path.exists(final_output_path):
+        file_size = os.path.getsize(final_output_path) / (1024 * 1024)  # MB
+        print(f"\n✓ Successfully merged depth videos!")
+        print(f"  Output: {final_output_path}")
+        print(f"  Size: {file_size:.1f} MB\n")
+        return True
+    else:
+        print(f"\n✗ Failed to merge videos")
+        print(f"  Error: {result.stderr[:500]}\n")
+        return False
+
+
 def process_video(video_path, config, vda_path, output_folder):
     """Process a single video file"""
     print(f"\n{'='*80}")
@@ -298,6 +395,112 @@ def process_video(video_path, config, vda_path, output_folder):
         return False
 
 
+def process_video_with_segmentation(video_file, config, vda_path, output_folder):
+    """Process video with automatic segmentation if enabled"""
+    processing_settings = config['processing']
+    auto_segment = processing_settings.get('auto_segment', False)
+    segment_length = processing_settings.get('segment_length', 300)
+
+    if not auto_segment:
+        # No segmentation - process video directly
+        return process_video(video_file, config, vda_path, output_folder)
+
+    # Auto-segmentation enabled
+    print(f"\n{'='*80}")
+    print(f"AUTO-SEGMENTATION MODE ENABLED")
+    print(f"{'='*80}\n")
+
+    # Create temp directory for segments
+    temp_dir = os.path.join(output_folder, f".temp_{video_file.stem}")
+    os.makedirs(temp_dir, exist_ok=True)
+
+    try:
+        # Step 1: Split video into segments
+        segments = split_video_into_segments(video_file, segment_length, temp_dir)
+
+        if not segments:
+            print("ERROR: No segments created")
+            return False
+
+        # Step 2: Process each segment
+        segment_depth_videos = []
+        successful_segments = 0
+
+        for i, segment in enumerate(segments):
+            print(f"\n{'='*80}")
+            print(f"Processing Segment {i+1}/{len(segments)}")
+            print(f"{'='*80}\n")
+
+            # Process this segment
+            segment_output_dir = os.path.join(temp_dir, f"segment_{i:03d}_output")
+
+            if process_video(segment, config, vda_path, segment_output_dir):
+                successful_segments += 1
+
+                # Find the depth video output
+                depth_video = None
+                if processing_settings.get('save_frames_only', True):
+                    # Frame-saving mode - find the depth video
+                    depth_video = os.path.join(segment_output_dir, f"segment_{i:03d}_depth.mp4")
+                    # Also check for other naming patterns
+                    if not os.path.exists(depth_video):
+                        for f in os.listdir(segment_output_dir):
+                            if f.endswith('_depth.mp4') or f.endswith('_vis.mp4'):
+                                depth_video = os.path.join(segment_output_dir, f)
+                                break
+                else:
+                    # Direct encoding mode
+                    for f in os.listdir(segment_output_dir):
+                        if '_depth.mp4' in f or '_vis.mp4' in f:
+                            depth_video = os.path.join(segment_output_dir, f)
+                            break
+
+                if depth_video and os.path.exists(depth_video):
+                    segment_depth_videos.append(depth_video)
+                    print(f"✓ Segment {i+1} depth video: {depth_video}")
+                else:
+                    print(f"⚠ Warning: Depth video not found for segment {i+1}")
+            else:
+                print(f"✗ Failed to process segment {i+1}")
+
+        # Step 3: Merge depth videos
+        if len(segment_depth_videos) == len(segments):
+            print(f"\n✓ All {len(segments)} segments processed successfully!")
+
+            # Create final output path
+            final_depth_video = os.path.join(output_folder, video_file.stem, f"{video_file.stem}_depth_full.mp4")
+            os.makedirs(os.path.dirname(final_depth_video), exist_ok=True)
+
+            if merge_depth_videos(segment_depth_videos, final_depth_video, temp_dir):
+                print(f"\n{'='*80}")
+                print(f"SUCCESS: Auto-segmentation complete!")
+                print(f"{'='*80}")
+                print(f"Final depth video: {final_depth_video}")
+                print(f"Segments processed: {successful_segments}/{len(segments)}")
+                print(f"{'='*80}\n")
+
+                # Cleanup temp files if successful
+                print("Cleaning up temporary files...")
+                import shutil
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                print("✓ Cleanup complete\n")
+
+                return True
+            else:
+                print("ERROR: Failed to merge depth videos")
+                return False
+        else:
+            print(f"\n✗ Only {len(segment_depth_videos)}/{len(segments)} segments succeeded")
+            print("Cannot merge incomplete results")
+            return False
+
+    except Exception as e:
+        print(f"\nERROR during auto-segmentation: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 def main():
     """Main execution function"""
     print("="*80)
@@ -356,6 +559,13 @@ def main():
             print(f"ERROR: Video file not found: {video_files[0]}")
             sys.exit(1)
 
+    # Check if auto-segmentation is enabled
+    if config['processing'].get('auto_segment', False):
+        print(f"\n🎬 Auto-segmentation: ENABLED")
+        print(f"   Segment length: {config['processing'].get('segment_length', 300)} seconds")
+    else:
+        print(f"\n🎬 Auto-segmentation: DISABLED")
+
     # Process videos
     successful = 0
     failed = 0
@@ -363,7 +573,7 @@ def main():
     total_start_time = time.time()
 
     for video_file in video_files:
-        if process_video(video_file, config, vda_path, output_folder):
+        if process_video_with_segmentation(video_file, config, vda_path, output_folder):
             successful += 1
         else:
             failed += 1

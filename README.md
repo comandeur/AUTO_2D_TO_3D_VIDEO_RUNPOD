@@ -8,7 +8,13 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
 
 ### Features
 
-- **Frame-Saving Mode** (NEW): Saves individual PNG frames instead of encoding video directly
+- **Auto-Segmentation** (NEW): Automatically splits long videos into manageable segments
+  - Prevents OOM when loading long 4K videos into RAM
+  - Processes each segment independently
+  - Automatically merges depth videos back into full-length output
+  - Configurable segment length (default: 5 minutes)
+  - Perfect for 20+ minute 4K videos
+- **Frame-Saving Mode**: Saves individual PNG frames instead of encoding video directly
   - Prevents OOM (Out Of Memory) kills on long videos
   - Download frames and encode locally with full control
   - Keep frames as backup for re-encoding

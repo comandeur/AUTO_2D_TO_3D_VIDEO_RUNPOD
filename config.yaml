@@ -50,6 +50,15 @@ processing:
   # false = Encode video directly on RunPod (may fail with OOM on long videos)
   save_frames_only: true
 
+  # Auto-segmentation for long videos (prevents OOM on video loading)
+  # Automatically splits video into segments, processes each, then merges depth videos
+  auto_segment: true  # Enable/disable auto-segmentation
+  segment_length: 300  # Length of each segment in seconds (300 = 5 minutes)
+  # Recommended values:
+  #   300 (5 min) - Safe for 4K videos, minimal RAM
+  #   600 (10 min) - Good for 1080p videos
+  #   900 (15 min) - Only if you have 32GB+ RAM
+
 # StereoPhotoMaker settings (for future SBS conversion)
 sbs_settings:
   # To be configured later
