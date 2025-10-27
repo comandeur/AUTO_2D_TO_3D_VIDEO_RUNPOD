@@ -6,18 +6,28 @@ by monkey-patching the save_video function.
 
 import os
 import sys
+
+# Change to Video-Depth-Anything directory FIRST, before any other imports
+vda_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Video-Depth-Anything')
+
+if not os.path.exists(vda_dir):
+    print(f"ERROR: Video-Depth-Anything directory not found at {vda_dir}")
+    print("Please run setup_runpod.sh first")
+    sys.exit(1)
+
+print(f"Changing to Video-Depth-Anything directory: {vda_dir}")
+os.chdir(vda_dir)
+print(f"Current directory: {os.getcwd()}")
+
+# Now import after changing directory
 import numpy as np
 import imageio
-
-# Change to Video-Depth-Anything directory
-vda_dir = os.path.join(os.path.dirname(__file__), 'Video-Depth-Anything')
-os.chdir(vda_dir)
-
-# Now run their script with modified save_video function
 import argparse
 import torch
 from utils.dc_utils import read_video_frames
 from video_depth_anything import VideoDepthAnything
+
+print("✓ Successfully imported Video-Depth-Anything modules")
 
 # Global variable to store output directory
 FRAME_OUTPUT_DIR = None
