@@ -16,8 +16,18 @@ if [ ! -d "$OUTPUT_DIR" ]; then
     exit 1
 fi
 
+# Check for new structure (depth_frames/) or old structure (loose files)
+FRAMES_DIR="$OUTPUT_DIR/depth_frames"
+if [ -d "$FRAMES_DIR" ]; then
+    echo "✓ Found frame-saving mode output structure"
+    SEARCH_DIR="$FRAMES_DIR"
+else
+    echo "Checking for old-style output (direct video encoding)..."
+    SEARCH_DIR="$OUTPUT_DIR"
+fi
+
 # Count frames
-frame_count=$(find "$OUTPUT_DIR" -name "*.png" -o -name "*.jpg" 2>/dev/null | wc -l)
+frame_count=$(find "$SEARCH_DIR" -name "*.png" -o -name "*.jpg" 2>/dev/null | wc -l)
 
 if [ $frame_count -eq 0 ]; then
     echo "✗ No frames found in $OUTPUT_DIR"

@@ -29,12 +29,15 @@ sudo yum install ffmpeg      # CentOS/RHEL
 tar -xzf depth_frames_PregnancyCravingsGoneWrongNew_*.tar.gz
 ```
 
-This will create a folder: `PregnancyCravingsGoneWrongNew/`
+This will create a folder: `PregnancyCravingsGoneWrongNew/` with subdirectories:
+- `depth_frames/` - Grayscale depth maps
+- `source_frames/` - Original video frames
+- `metadata.txt` - Video information
 
 ### 2. Verify Frames
 
 ```bash
-cd PregnancyCravingsGoneWrongNew
+cd PregnancyCravingsGoneWrongNew/depth_frames
 ls *.png | head -10  # Check first 10 frames
 
 # Count total frames

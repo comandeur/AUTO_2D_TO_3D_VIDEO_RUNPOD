@@ -167,15 +167,34 @@ def process_video(video_path, config, vda_path, output_folder):
     # Convert input video to absolute path
     input_video_abs = os.path.abspath(video_path)
 
-    # Build command - run.py from within Video-Depth-Anything directory
+    # Build command - choose between frame-saving mode or video encoding mode
     depth_settings = config['depth_settings']
-    cmd = [
-        'python3',
-        'run.py',  # Run from vda_path directory, so just 'run.py'
-        '--input_video', input_video_abs,  # Use absolute path
-        '--output_dir', video_output_dir,  # Use absolute path
-        '--encoder', depth_settings['encoder']
-    ]
+    processing_settings = config['processing']
+    save_frames_only = processing_settings.get('save_frames_only', True)
+
+    # Use run_save_frames.py if save_frames_only is enabled (default)
+    # This saves individual PNG frames instead of encoding video, preventing OOM
+    if save_frames_only:
+        # Use our custom frame-saving script
+        script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'run_save_frames.py'))
+        cmd = [
+            'python3',
+            script_path,
+            '--input_video', input_video_abs,
+            '--output_dir', video_output_dir,
+            '--encoder', depth_settings['encoder']
+        ]
+        print("[MODE] Saving individual frames (prevents OOM, allows local encoding)")
+    else:
+        # Use original run.py for direct video encoding
+        cmd = [
+            'python3',
+            'run.py',
+            '--input_video', input_video_abs,
+            '--output_dir', video_output_dir,
+            '--encoder', depth_settings['encoder']
+        ]
+        print("[MODE] Encoding video directly (may cause OOM on long videos)")
 
     # Add optional parameters
     if depth_settings.get('metric'):

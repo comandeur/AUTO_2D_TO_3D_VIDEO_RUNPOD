@@ -8,6 +8,11 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
 
 ### Features
 
+- **Frame-Saving Mode** (NEW): Saves individual PNG frames instead of encoding video directly
+  - Prevents OOM (Out Of Memory) kills on long videos
+  - Download frames and encode locally with full control
+  - Keep frames as backup for re-encoding
+  - No risk of losing 30+ minutes of processing work
 - Automated setup script for RunPod instances
 - Batch processing of multiple videos
 - Real-time progress monitoring (frames/time)
@@ -81,21 +86,51 @@ This project automates the conversion of 2D videos to 3D depth maps using [Video
    ./process_video.py
    ```
 
+   By default, this saves individual PNG frames instead of encoding video directly.
+   This prevents OOM errors and allows local encoding.
+
    If you get a model checkpoint error, run:
    ```bash
    ./download_models.sh
    ```
+
+8. **Package Frames for Download**
+   ```bash
+   ./package_frames.sh
+   ```
+
+   This creates a compressed archive of all depth frames.
+
+9. **Download Frames**
+   - Use RunPod File Browser, SCP, or HTTP server
+   - See [FRAME_SAVING_MODE.md](FRAME_SAVING_MODE.md) for download options
+
+10. **Encode Locally**
+    ```bash
+    # On your local machine:
+    tar -xzf depth_frames_*.tar.gz
+    cd PregnancyCravingsGoneWrongNew/depth_frames
+    ffmpeg -framerate 23.98 -i %05d.png -c:v libx264 -crf 18 -pix_fmt yuv420p depth_video.mp4
+    ```
+
+    See [ENCODE_LOCALLY.md](ENCODE_LOCALLY.md) for detailed encoding instructions.
 
 ## Folder Structure
 
 ```
 AUTO_2D_TO_3D_VIDEO_RUNPOD/
 ├── in/                      # INPUT: Place your 2D videos here
-├── depth/                   # OUTPUT: Depth videos saved here
+├── depth/                   # OUTPUT: Depth frames/videos saved here
+│   └── VideoName/
+│       ├── depth_frames/    # PNG depth maps (frame-saving mode)
+│       ├── source_frames/   # Original frames (frame-saving mode)
+│       └── metadata.txt     # Video info (frame-saving mode)
 ├── stereophotomaker/        # For StereoPhotoMaker (future)
 ├── Video-Depth-Anything/    # Depth estimation tool (auto-cloned)
 ├── config.yaml              # Configuration file
 ├── process_video.py         # Main processing script
+├── run_save_frames.py       # Frame-saving processor (NEW)
+├── package_frames.sh        # Package frames for download (NEW)
 ├── setup_runpod.sh          # Setup script
 └── README.md                # This file
 ```

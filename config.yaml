@@ -45,6 +45,11 @@ processing:
   # Specific video file to process (if batch_process is false)
   single_video_file: ""
 
+  # Save individual frames instead of encoding video (RECOMMENDED)
+  # true = Save PNG frames to download and encode locally (prevents OOM, allows backup)
+  # false = Encode video directly on RunPod (may fail with OOM on long videos)
+  save_frames_only: true
+
 # StereoPhotoMaker settings (for future SBS conversion)
 sbs_settings:
   # To be configured later
