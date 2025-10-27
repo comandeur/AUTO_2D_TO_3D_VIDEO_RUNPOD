@@ -212,11 +212,13 @@ if __name__ == "__main__":
     video_name = os.path.basename(args.input_video)
     os.makedirs(args.output_dir, exist_ok=True)
 
-    processed_video_path = os.path.join(args.output_dir, os.path.splitext(video_name)[0]+'_src.mp4')
+    # processed_video_path = os.path.join(args.output_dir, os.path.splitext(video_name)[0]+'_src.mp4')
     depth_vis_path = os.path.join(args.output_dir, os.path.splitext(video_name)[0]+'_depth.mp4')
 
-    # This will save frames AND try to create video
-    save_video_with_frames(frames, processed_video_path, fps=fps, is_depths=False, grayscale=False)
+    # SKIP saving source frames - we only need depth frames!
+    # save_video_with_frames(frames, processed_video_path, fps=fps, is_depths=False, grayscale=False)
+
+    # Only save depth frames
     save_video_with_frames(depths, depth_vis_path, fps=fps, is_depths=True, grayscale=args.grayscale)
 
     print(f"\n{'='*80}")
